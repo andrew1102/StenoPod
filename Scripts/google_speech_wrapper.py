@@ -57,7 +57,7 @@ class Speech_Wrapper(object):
     def Configure_API(self, title):
 
          #Uncomment this for audio longer than 1 minute
-        self.audio = types.RecognitionAudio(uri="gs://bucket_name/"+title+".flac")
+        self.audio = types.RecognitionAudio(uri="gs://twiml-mp3/"+title+".flac")
     
         self.config = types.RecognitionConfig(encoding=self.encoding,
                                  sample_rate_hertz=self.sample_rate,
@@ -192,6 +192,6 @@ class Speech_Wrapper(object):
         operation = self._client.long_running_recognize(self.config, self.audio)
 
         print('Waiting for operation to complete...')
-        responses = operation.results(timeout=None)
+        responses = operation.result(timeout=None)
         self.results = responses.results
         Cache_Save(item=responses, name=name)

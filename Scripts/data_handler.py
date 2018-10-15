@@ -11,7 +11,7 @@ from tika import parser
 class Data_Handler():
 
     def __init__(self,
-                 categories=['podcast']): 
+                 categories=['']): 
 
         self.categories = categories
         self.path = os.environ.get('REPO')
@@ -53,12 +53,14 @@ class Data_Handler():
         if stop: return corpus      
 
         for category in self.categories:
-        
+       
+            #Must add your own 
             if category == 'podcast':  
 
                 print('Adding podcast transcripts...')        
                   
-                name = os.path.join(self.path,'guestlist.txt')
+                #Name of your particular titles file
+                name = os.path.join(self.path,'titleslist.txt')
 
                 with open(name,'r') as f:
 

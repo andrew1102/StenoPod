@@ -24,7 +24,7 @@ By default, your podcast pdf files will be used for your vocabulary. In order to
 ```
 - Create and populate new directory in the Corpus directory
 - Make a txt file with the names of the titles: ls *.pdf > new_list.txt (Remove the .pdf at the ends of the names in the file)
-- In Configs/data_handler.py line 55, add a new category if statement using the same format that is present
+- In Scripts/data_handler.py line 55, add a new category if statement using the same format that is present
 - Add your new category to the Data_Handler class variable, categories
 ```
 That's it! Now you're ready to use your new vocabulary.
@@ -41,7 +41,7 @@ convert_audio
 Now your aduio is ready to be handled by the Google Speech API!
 
 ## Run Transcription
-By default, the wrapper is configured to separate sequences by speaker transitions. This can be changed in the Speech_Wrapper constructor. Audio transcription is quite simple, however. Just make sure your audio files are in a google cloud storage bucket, and be sure to change the path to your files in Configs/google_speech_wrapper.py line 60. To transcribe, do the following:
+By default, the wrapper is configured to separate sequences by speaker transitions. This can be changed in the Speech_Wrapper constructor. Audio transcription is quite simple, however. Just make sure your audio files are in a google cloud storage bucket, and be sure to change the path to your files in Scripts/google_speech_wrapper.py line 60. To transcribe, do the following:
 ```
 transcribe {title}
 ```

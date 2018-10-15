@@ -35,6 +35,9 @@ class Data_Handler():
             line = line.replace('\n','')
 
             raw = parser.from_file(os.path.join(self.path, 'Corpus/'+folder+'/'+line+'.pdf'))
+            #Remove this to use your own podcasts
+            if folder == 'Podcasts':
+                raw = parser.from_file(os.path.join(os.environ.get('HOME'),'Podcasts/'+line+'.pdf'))
 
             text = raw['content']
             text = text.translate(translate_table)

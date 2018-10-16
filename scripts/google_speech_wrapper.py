@@ -147,6 +147,8 @@ class Speech_Wrapper(object):
         responses = operation.result(timeout=None)
         self.results = responses.results
 
+        self.scripts, self.scores = [], []
+
         for result in self.results:
             script = []
             score = []
@@ -161,10 +163,29 @@ class Speech_Wrapper(object):
 
         Cache_Save(item=responses, name=name)
 
+    #Currently only supports labeling for 2 speakers
     def Produce_DiarScript(self):
 
         self.Transcribe()
         word_list = self.results[-1].alternatives[0].words
 
-        for word in word_list:
-            print('speaker {} says: {}'.format(word.speaker_tag,word.word))
+        script = []
+        sam = word_list[0].speaker_tag
+        tag = sam
+        speech = 'Sam:\n'
+        stop = 0
+        for itr,word in enumerate(word_list):
+            if tag != word.speaker_tag:
+                script.append(speech)
+                speech = ''
+                if word.speaker_tag == sam: speech += '\n\nSam:\n'
+                else: speech += '\n\nGuest:\n'
+                stop = itr
+            speech += word.word + ' '
+            tag = word.speaker_tag
+#            script.append(word.word)
+        speech = '\nSam:\n'
+        for word in word_list[stop:]:
+            speech += word.word + ' '
+        script.append(speech)
+        return script

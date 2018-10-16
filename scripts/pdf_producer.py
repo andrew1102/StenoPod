@@ -1,12 +1,13 @@
+import sys
 from fpdf import FPDF
 from google_speech_wrapper import Speech_Wrapper
 
-guest = 'test'
-title = 'This Week in Machine Learning & AI: '+guest+' Interview'
+guest = sys.argv[1]
+title = guest.replace('_', ' ')
+title = 'This Week in Machine Learning & AI: '+title+' Interview'
 
 class PDF(FPDF):
-    if False:
-#    def header(self):
+    def header(self):
         # Arial bold 15
         self.set_font('Arial', 'B', 15)
         # Calculate width of title and position
@@ -23,8 +24,7 @@ class PDF(FPDF):
         # Line break
         self.ln(10)
 
-    if False:
-#    def footer(self):
+    def footer(self):
         # Position at 1.5 cm from bottom
         self.set_y(-15)
         # Arial italic 8
@@ -62,35 +62,35 @@ class PDF(FPDF):
 
 pdf = PDF()
 pdf.set_title(title)
-wrap = Speech_Wrapper()
-scripts = wrap.Get_Scripts(guest=guest,rerank=True)
-print(scripts)
-i = 0
+wrap = Speech_Wrapper(title=guest)
+script = wrap.Produce_DiarScript()
 txt = ''
-while scripts[i].find('onto the show') == -1 and \
-      scripts[i].find('on to the show') == -1:
-    script = scripts[i]
-    txt += '\n\n'+script
-    i += 1
+begin = 0
+end = -1
 
-pdf.print_chapter(label = 'Introduction', txt=txt)
+for i in range(len(script)):
+    line = script[i]
+    rline = script[-i]
+    if line.find('Guest') != -1: begin = i 
+    if rline.find('Guest') != -1: end = -i 
+    if begin > 0 and end < -1: break 
 
-j = i
-txt = ''
+intro = ''
 
-while scripts[j].find("That's our show for today") == -1:
-    script = scripts[j]
-    txt += '\n\n'+script
-    j += 1
+for line in script[:begin]:
+    intro += line
 
-pdf.print_chapter(label='Interview', txt=txt)
-txt = ''
+body = ''
 
-while j < len(scripts):
-    script = scripts[j]
-    txt += '\n\n'+script
-    j += 1
+for line in script[begin:end+1]:
+    body += line
 
-pdf.print_chapter(label='Closure', txt=txt)
+outro = ''
 
+for line in script[end+1:]:
+    outro += line
+
+pdf.print_chapter(label = 'Introduction', txt=intro)
+pdf.print_chapter(label = 'Interview', txt=body)
+pdf.print_chapter(label = 'Conclusion', txt=outro)
 pdf.output('Final_'+guest+'_Transcript.pdf', 'F')

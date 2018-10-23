@@ -1,10 +1,12 @@
 import sys
+import os
 from fpdf import FPDF
 from google_speech_wrapper import Speech_Wrapper
 
 guest = sys.argv[1]
 title = guest.replace('_', ' ')
 title = 'This Week in Machine Learning & AI: '+title+' Interview'
+path = os.path.join(os.environ.get('REPO'), 'pdfs')
 
 class PDF(FPDF):
     def header(self):
@@ -93,4 +95,4 @@ for line in script[end+1:]:
 pdf.print_chapter(label = 'Introduction', txt=intro)
 pdf.print_chapter(label = 'Interview', txt=body)
 pdf.print_chapter(label = 'Conclusion', txt=outro)
-pdf.output('Final_'+guest+'_Transcript.pdf', 'F')
+pdf.output(os.path.join(path, 'Final_'+guest+'_Transcript.pdf'), 'F')

@@ -34,8 +34,6 @@ class Data_Handler():
 
             line = line.replace('\n','')
 
-            print('path: '+os.path.join(self.path, 'corpus/'+folder+'/'+line+'.pdf'))
-
             raw = parser.from_file(os.path.join(self.path, 'corpus/'+folder+'/'+line+'.pdf'))
 
             text = raw['content']

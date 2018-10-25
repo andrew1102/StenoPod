@@ -56,7 +56,7 @@ class Speech_Wrapper(object):
     def Configure_API(self):
 
         if self.title.find('.flac') != -1:
-            path = os.path.join(self.path, 'scripts/'+self.title)
+            path = os.path.join(self.path, 'audio/'+self.title)
 #            path = os.path.join(self.path,'.cache/'+self.title+'.flac')
             with open(path, 'rb') as audio_file:
                 content = audio_file.read()

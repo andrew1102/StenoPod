@@ -11,7 +11,7 @@ from tika import parser
 class Data_Handler():
 
     def __init__(self,
-                 categories=['']): 
+                 categories=['podcast', 'machine learning']): 
 
         self.categories = categories
         self.path = os.environ.get('REPO')
@@ -34,10 +34,9 @@ class Data_Handler():
 
             line = line.replace('\n','')
 
-            raw = parser.from_file(os.path.join(self.path, 'Corpus/'+folder+'/'+line+'.pdf'))
-            #Remove this to use your own podcasts
-            if folder == 'Podcasts':
-                raw = parser.from_file(os.path.join(os.environ.get('HOME'),'Podcasts/'+line+'.pdf'))
+            print('path: '+os.path.join(self.path, 'corpus/'+folder+'/'+line+'.pdf'))
+
+            raw = parser.from_file(os.path.join(self.path, 'corpus/'+folder+'/'+line+'.pdf'))
 
             text = raw['content']
             text = text.translate(translate_table)
@@ -68,7 +67,7 @@ class Data_Handler():
                 with open(name,'r') as f:
 
                     guests = f.readlines()   
-                    self.Append_Corpus(folder='Podcasts', lines=guests)
+                    self.Append_Corpus(folder='podcasts', lines=guests)
 
             elif category == 'machine learning': 
 
@@ -79,7 +78,7 @@ class Data_Handler():
                 with open(name,'r') as f:
 
                     guests = f.readlines()   
-                    self.Append_Corpus(folder='ML_Papers', lines=guests)
+                    self.Append_Corpus(folder='ml_papers', lines=guests)
                  
             # Tokenize
             corpus = word_tokenize(self.corpus_raw)

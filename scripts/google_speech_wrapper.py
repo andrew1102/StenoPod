@@ -24,7 +24,6 @@ class Speech_Wrapper(object):
                        phrases=['TWIML','twimlai.com','Charrington','AI'], #Hint words
                        num_gram=2,
                        num_speakers=2,
-                       length='long',
                        title=''):
        
         self._client = speech.SpeechClient()
@@ -50,22 +49,22 @@ class Speech_Wrapper(object):
         self.phrases = phrases 
         dh = Data_Handler()
         ngram = dh.Get_NGram(num_gram=num_gram)
-        self.length = length
         self.num_speakers = num_speakers
         self.cfreq_ngram = ConditionalFreqDist(ngram) 
         self.title = title 
 
     def Configure_API(self):
 
-        if self.length == 'long': 
-            self.audio = types.RecognitionAudio(uri="gs://twiml-mp3/"+self.title+".flac")
-
-        else:
-            path = os.path.join(path,'.cache/'+self.title+'.flac')
+        if self.title.find('.flac') != -1:
+            path = os.path.join(self.path, 'scripts/'+self.title)
+#            path = os.path.join(self.path,'.cache/'+self.title+'.flac')
             with open(path, 'rb') as audio_file:
                 content = audio_file.read()
                 self.audio = types.RecognitionAudio(content=content)   
- 
+
+        else: 
+            self.audio = types.RecognitionAudio(uri="gs://twiml-mp3/"+self.title+".flac")
+
         self.config = types.RecognitionConfig(encoding=self.encoding,
                                  sample_rate_hertz=self.sample_rate,
                                  language_code=self.language_code,

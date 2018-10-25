@@ -31,12 +31,12 @@ That's it! Now you're ready to use your new vocabulary.
 ## Preprocess Audio
 Convert your audio files into FLAC files, as requested by Google Speech
 ```
-cd Audio
+cd audio
 ffmpeg -i {your audio file} -{options} -ac 1 -ar 16000 {file name}.flac
 ```
-If you'd like to convert all of the files in your Audio directory, simply run from any location:
+If you'd like to convert all of the files in your audio directory, simply run from any location:
 ```
-convert_audio
+convert_all_audio
 ```
 Now your aduio is ready to be handled by the Google Speech API!
 

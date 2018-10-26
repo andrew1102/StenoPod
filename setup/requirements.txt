@@ -1,3 +1,4 @@
 google-cloud-speech==0.35.0
 nltk
 tika
+distance

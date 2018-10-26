@@ -1,41 +1,25 @@
+import sys
+import os
 import nltk
-import pickle
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from distance import nlevenshtein
-from Data_Handler import Data_Handler
+from data_handler import dataHandler
 from scipy.stats import ttest_rel
 
-dh = Data_Handler()
-ngram_model = dh.Get_NGram(num_gram = 2)
-cfreq_2gram = nltk.ConditionalFreqDist(ngram_model)
+title = sys.argv[1]
+path = os.environ.get('REPO')
+path = os.path.join(path, '.cache')
+
+#for file in files:
+for filename in os.listdir(path):
+    if not(title in filename): continue 
+    print(filename)
+
 api_weight = 0.9
 
-true_scripts = []
-guest = 'Ross_Fadely'
-dists,redists = [],[]
+if False:
 
-with open('Split_Files/'+guest+'/True_'+guest+'.txt','r') as f:
-    true_scripts = f.read().lower()
-    true_scripts = true_scripts.replace('. ',' ')
-    true_scripts = true_scripts.replace('? ',' ')
-    true_scripts = true_scripts.replace(', ',' ')
-    true_scripts = true_scripts.split('\n')
-
-for i in range(1,len(true_scripts)-1):
-    true = true_scripts[i-1]
-    true2 = true_scripts[i-1]
-    if true == '':
-        continue
-    true = true.split(' ')
-    true = true[1:-1]
-    guesses = []
-    num = i
-    num_str = ''
-    if num < 10: num_str = '00'+str(num)
-    elif num >= 10 and num<100: num_str = '0'+str(num)
-    elif num >= 100 and num < len(true_scripts): num_str = str(num)
-    else: break
     with open('Split_Files/'+guest+'/'+guest+'_'+num_str+'_script.txt','r') as f:
         guess = f.read()
         guess = guess.lower()

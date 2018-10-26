@@ -7,25 +7,27 @@ Welcome to StenoPod! Let's save some time by leveraging the power of AI to trans
 ![alt text](https://twimlai.com/files/2017/09/TWiML_banner_wide.png)
 
 ## Requisites
+- Python: https://www.python.org
 - Google Speech API: https://cloud.google.com/speech-to-text/
 - NLTK: https://www.nltk.org
+- Java: https://www.java.com/en/
+- Tika: http://tika.apache.org
 
 ## Setup
 Clone repository and set up environment. Note: setup_environment script only needs to be run once.
 ```
 git clone https://github.com/andrew1102/StenoPod
 cd StenoPod
-chmod u+x Scripts/setup_environment.sh
-./Scripts/setup_environment.sh (Need to change path for API key)
+chmod u+x setup/setup_environment.sh
+./setup/setup_environment.sh (Need to change path for API key)
 ```
 ## Build Vocabulary
 Now that your environment is set up, you're ready to build a vocabulary to do N-Gram reranking.
 By default, your podcast pdf files will be used for your vocabulary. In order to effectively realize the power of n-gram reranking, more files are needed. For the TWiML&AI Podcast, I used a handful of deep learning papers in order to increase the frequency of machine learning terminology. In order to use your own custom vocabulary, the following steps must be taken:
 ```
-- Create and populate new directory in the Corpus directory
+- Create and populate new directory in the "corpus" directory
 - Make a txt file with the names of the titles: ls *.pdf > new_list.txt (Remove the .pdf at the ends of the names in the file)
-- In Scripts/data_handler.py line 55, add a new category if statement using the same format that is present
-- Add your new category to the Data_Handler class variable, categories
+- In scripts/data_handler.py feed category list in constructor or call Add_Category function to clear the cache and add the new category
 ```
 That's it! Now you're ready to use your new vocabulary.
 ## Preprocess Audio
@@ -41,7 +43,7 @@ convert_all_audio
 Now your aduio is ready to be handled by the Google Speech API!
 
 ## Run Transcription
-By default, the wrapper is configured to separate sequences by speaker transitions. This can be changed in the Speech_Wrapper constructor. Audio transcription is quite simple, however. Just make sure your audio files are in a google cloud storage bucket, and be sure to change the path to your files in Scripts/google_speech_wrapper.py line 60. To transcribe, do the following:
+By default, the wrapper is configured to separate sequences by speaker transitions. This can be changed in the Speech_Wrapper constructor. Audio transcription is quite simple, however. Just make sure your audio files are in a google cloud storage bucket, and be sure to change the path to your files in scripts/google_speech_wrapper.py line 60. To transcribe, do the following:
 ```
 transcribe {title}
 ```

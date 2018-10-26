@@ -1,26 +1,26 @@
 import os
 import pickle
 
-def Cache_Load(name):
+class cacheUtility:
 
-    home = os.environ.get('REPO')
-    path = os.path.join(home,'.cache/'+name)
-    stop = False
+    def __init__(self, name):
 
-    if os.path.exists(path):
-        stop = True
-        with open(path,'rb') as f:
-            item = pickle.load(f)
-        return item, stop
+        self.name = name.replace('.flac', '')
+        self.path = os.environ.get('REPO')
+        self.path = os.path.join(self.path, '.cache/'+ self.name)
 
-    else:
-        stop = False
-        return None, stop
-
-def Cache_Save(item, name):
-    home = os.environ.get('REPO')
-    path = os.path.join(home,'.cache/'+name)
-
-    with open(path,'wb') as f:
-        pickle.dump(item,f)
-    return
+    def cacheLoad(self):    
+    
+        if os.path.exists(self.path):
+            with open(self.path,'rb') as f:
+                item = pickle.load(f)
+            return item, True
+    
+        else:
+            return None, False
+    
+    def cacheSave(self, item):
+    
+        with open(self.path,'wb') as f:
+            pickle.dump(item,f)
+        return

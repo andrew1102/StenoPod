@@ -1,4 +1,4 @@
-from cache_utility import Cache_Load, Cache_Save
+from cache_utility import cacheUtility
 
 from nltk import ngrams
 from nltk.tokenize import word_tokenize
@@ -8,22 +8,22 @@ import string
 import os
 from tika import parser
 
-class Data_Handler():
+class dataHandler():
 
     def __init__(self,
-                 categories=['']): 
+                 categories=['podcast', 'machine learning']): 
 
         self.categories = categories
         self.path = os.environ.get('REPO')
         self.corpus_raw = u""
 
     #Support for podcast, machine learning, dialogue
-    def Add_Category(self, category=''):
+    def addCategory(self, category=''):
         if category == '': return
         os.remove(os.path.join(self.path, '.cache/Word_List.pkl'))
         self.categories.append(category)
 
-    def Append_Corpus(self, folder, lines):
+    def appendCorpus(self, folder, lines):
 
         #Remove punctuation
         translate_table = dict((ord(char), None) for char in string.punctuation)
@@ -34,24 +34,23 @@ class Data_Handler():
 
             line = line.replace('\n','')
 
-            raw = parser.from_file(os.path.join(self.path, 'Corpus/'+folder+'/'+line+'.pdf'))
-            #Remove this to use your own podcasts
-            if folder == 'Podcasts':
-                raw = parser.from_file(os.path.join(os.environ.get('HOME'),'Podcasts/'+line+'.pdf'))
+            raw = parser.from_file(os.path.join(self.path, 'corpus/'+folder+'/'+line+'.pdf'))
 
             text = raw['content']
             text = text.translate(translate_table)
-            text = self.Fix_String(text)
+            text = self.fixString(text)
 
-            Cache_Save(text,line+'.pkl')
+            self.cache_handler = cacheUtility(name=line+'.pkl')
+            self.cache_handler.cacheSave(item=text)
 
             self.corpus_raw += text 
 
     #Function to return the text from all of the true transcripts
-    def Create_Corpus(self):
+    def createCorpus(self):
  
         name = 'Word_List.pkl'
-        corpus, stop = Cache_Load(name=name)
+        self.cache_handler = cacheUtility(name=name)
+        corpus, stop = self.cache_handler.cacheLoad()
 
         if stop: return corpus      
 
@@ -68,7 +67,7 @@ class Data_Handler():
                 with open(name,'r') as f:
 
                     guests = f.readlines()   
-                    self.Append_Corpus(folder='Podcasts', lines=guests)
+                    self.appendCorpus(folder='podcasts', lines=guests)
 
             elif category == 'machine learning': 
 
@@ -79,7 +78,7 @@ class Data_Handler():
                 with open(name,'r') as f:
 
                     guests = f.readlines()   
-                    self.Append_Corpus(folder='ML_Papers', lines=guests)
+                    self.appendCorpus(folder='ml_papers', lines=guests)
                  
             # Tokenize
             corpus = word_tokenize(self.corpus_raw)
@@ -95,24 +94,26 @@ class Data_Handler():
             stop_words = set(stopwords.words('english'))
             corpus = [w for w in words if not w in stop_words]
   
-            Cache_Save(corpus,'Word_List.pkl')
+            self.cache_handler = cacheUtility(name='Word_List.pkl')
+            self.cache_handler.cacheSave(corpus)
 
         return corpus
     
-    def Get_NGram(self,num_gram):
+    def getNGram(self,num_gram):
        
         name = str(num_gram) + '_gram_model.pkl'
 
-        ngram_model, stop = Cache_Load(name=name)
+        self.cache_handler = cacheUtility(name=name)
+        ngram_model, stop = self.cache_handler.cacheLoad()
         
         print('Building vocab..')         
-        corpus = self.Create_Corpus()
+        corpus = self.createCorpus()
 
         # extracting the n-grams and sorting them according to their frequencies
         ngram_model = ngrams(corpus,num_gram)
         ngram_model = sorted(ngram_model, key=lambda item: item[1], reverse=True)
 
-        Cache_Save(item=ngram_model, name=name)
+        self.cache_handler.cacheSave(item=ngram_model)
 
         return ngram_model
 
@@ -124,7 +125,7 @@ class Data_Handler():
         test_str = test_str[:spot1]+test_str[spot2+1:]
         return test_str
     
-    def Fix_String(self,line):
+    def fixString(self,line):
     
         line = line[54:].lstrip()
         line = self.braces(line)

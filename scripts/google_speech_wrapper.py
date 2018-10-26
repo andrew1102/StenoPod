@@ -8,10 +8,10 @@ from google.cloud.speech_v1p1beta1 import types
 
 from nltk import ConditionalFreqDist
 
-from data_handler import Data_Handler
-from cache_utility import Cache_Save, Cache_Load
+from data_handler import dataHandler
+from cache_utility import cacheUtility
 
-class Speech_Wrapper(object):
+class speechWrapper(object):
 
     def __init__(self, model='phone_call',
                        language_code='en-US',
@@ -24,12 +24,10 @@ class Speech_Wrapper(object):
                        phrases=['TWIML','twimlai.com','Charrington','AI'], #Hint words
                        num_gram=2,
                        num_speakers=2,
-                       length='long',
                        title=''):
        
         self._client = speech.SpeechClient()
         self.model = model
-        self.path = os.environ.get('REPO')
         self.encoding=enums.RecognitionConfig.AudioEncoding.FLAC
         self.sample_rate = 16000
         self.language_code = language_code
@@ -48,24 +46,25 @@ class Speech_Wrapper(object):
           speech.enums.RecognitionMetadata.MicrophoneDistance.NEARFIELD)
 
         self.phrases = phrases 
-        dh = Data_Handler()
-        ngram = dh.Get_NGram(num_gram=num_gram)
-        self.length = length
+        dh = dataHandler()
+        ngram = dh.getNGram(num_gram=num_gram)
         self.num_speakers = num_speakers
         self.cfreq_ngram = ConditionalFreqDist(ngram) 
         self.title = title 
 
-    def Configure_API(self):
+        self.path = os.environ.get('REPO')
+        self.path = os.path.join(self.path,'.cache/')
 
-        if self.length == 'long': 
-            self.audio = types.RecognitionAudio(uri="gs://twiml-mp3/"+self.title+".flac")
+    def configureAPI(self):
 
-        else:
-            path = os.path.join(path,'.cache/'+self.title+'.flac')
-            with open(path, 'rb') as audio_file:
+        if self.title.find('.flac') != -1:
+            with open(os.path.join(self.path, self.title), 'rb') as audio_file:
                 content = audio_file.read()
                 self.audio = types.RecognitionAudio(content=content)   
- 
+
+        else: 
+            self.audio = types.RecognitionAudio(uri="gs://twiml-mp3/"+self.title+".flac")
+
         self.config = types.RecognitionConfig(encoding=self.encoding,
                                  sample_rate_hertz=self.sample_rate,
                                  language_code=self.language_code,
@@ -82,25 +81,27 @@ class Speech_Wrapper(object):
                                  speech_contexts=[types.SpeechContext(phrases=self.phrases)])
 
     #Use if you don't care about speaker labeling
-    def Produce_Script(self, rerank=True):
+    def produceScript(self, rerank=True):
 
         script_name = self.title+'_scripts.pkl'
         score_name = self.title+'_scores.pkl'
 
-        script, stop = Cache_Load(name=script_name)
-        score, stop = Cache_Load(name=score_name)
+        cache_handler = cacheUtility(name=script_name)
+        script, stop = cache_handler.cacheLoad()
+        cache_handler = cacheUtility(name=score_name)
+        score, stop = cache_handler.cacheLoad()
 
         if stop: #Stop if files already exist in cache
             self.scripts, self.scores = script, score
             return self.scripts, self.scores
 
-        self.Transcribe()
+        self.transcribe()
 
-        if rerank: self.Rerank() #Perform n-gram reranking
+        if rerank: self.rerank() #Perform n-gram reranking
 
-        return self.scripts[0] #Return most probable one
+        return self.scripts #Return most probable one
 
-    def Rerank(self):
+    def rerank(self):
 
         epsilon = 1e-8
         api_weight = 0.9 #Maybe make trainable?
@@ -129,16 +130,17 @@ class Speech_Wrapper(object):
             new_score,self.scripts[i][j]  = (list(t) \
                    for t in zip(*sorted(zip(new_score, scripts), reverse=True)))
 
-    def Transcribe(self):
+    def transcribe(self):
 
         name = self.title+'_result.pkl'
-        responses, stop = Cache_Load(name=name)
+        cache_handler = cacheUtility(name=name)
+        responses, stop = cache_handler.cacheLoad()
 
         if stop: 
             self.results = responses.results
             return self.results
 
-        self.Configure_API()
+        self.configureAPI()
 
         # Detects speech and words in the audio file
         operation = self._client.long_running_recognize(self.config, self.audio)
@@ -161,10 +163,10 @@ class Speech_Wrapper(object):
             self.scripts.append(script)
             self.scores.append(score)
 
-        Cache_Save(item=responses, name=name)
+        cache_handler.cacheSave(item=responses)
 
     #Currently only supports labeling for 2 speakers
-    def Produce_DiarScript(self):
+    def produceDiarScript(self):
 
         self.Transcribe()
         word_list = self.results[-1].alternatives[0].words

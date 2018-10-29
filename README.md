@@ -17,9 +17,9 @@ Welcome to StenoPod! Let's save some time by leveraging the power of AI to trans
 Clone repository and set up environment. Note: setup_environment script only needs to be run once.
 ```
 git clone https://github.com/andrew1102/StenoPod
-cd StenoPod
-chmod u+x setup/setup_environment.sh
-./setup/setup_environment.sh (Need to change path for API key)
+export REPO='StenoPod'
+alias setup_repo='$REPO/setup/setup_environment.sh'
+setup (Assumes API key in $HOME)
 ```
 ## Build Vocabulary
 Now that your environment is set up, you're ready to build a vocabulary to do N-Gram reranking.

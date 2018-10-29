@@ -40,8 +40,8 @@ class dataHandler():
             text = text.translate(translate_table)
             text = self.fixString(text)
 
-            self.cache_handler = cacheUtility(name=line+'.pkl')
-            self.cache_handler.cacheSave(item=text)
+            cache_handler = cacheUtility(name=line+'.pkl')
+            cache_handler.cacheSave(item=text)
 
             self.corpus_raw += text 
 
@@ -49,8 +49,8 @@ class dataHandler():
     def createCorpus(self):
  
         name = 'Word_List.pkl'
-        self.cache_handler = cacheUtility(name=name)
-        corpus, stop = self.cache_handler.cacheLoad()
+        cache_handler = cacheUtility(name=name)
+        corpus, stop = cache_handler.cacheLoad()
 
         if stop: return corpus      
 
@@ -94,8 +94,8 @@ class dataHandler():
             stop_words = set(stopwords.words('english'))
             corpus = [w for w in words if not w in stop_words]
   
-            self.cache_handler = cacheUtility(name='Word_List.pkl')
-            self.cache_handler.cacheSave(corpus)
+            cache_handler = cacheUtility(name='Word_List.pkl')
+            cache_handler.cacheSave(corpus)
 
         return corpus
     
@@ -103,17 +103,20 @@ class dataHandler():
        
         name = str(num_gram) + '_gram_model.pkl'
 
-        self.cache_handler = cacheUtility(name=name)
-        ngram_model, stop = self.cache_handler.cacheLoad()
+        cache_handler = cacheUtility(name=name)
+        ngram_model, stop = cache_handler.cacheLoad()
         
-        print('Building vocab..')         
+        if stop:
+            return ngram_model
+        
+        print('Building vocab..') 
         corpus = self.createCorpus()
 
         # extracting the n-grams and sorting them according to their frequencies
         ngram_model = ngrams(corpus,num_gram)
         ngram_model = sorted(ngram_model, key=lambda item: item[1], reverse=True)
 
-        self.cache_handler.cacheSave(item=ngram_model)
+        cache_handler.cacheSave(item=ngram_model)
 
         return ngram_model
 

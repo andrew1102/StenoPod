@@ -99,7 +99,7 @@ class speechWrapper(object):
 
         if rerank: self.rerank() #Perform n-gram reranking
 
-        return self.scripts #Return most probable one
+        return self.scripts, self.scores #Return most probable one
 
     def rerank(self):
 
@@ -171,7 +171,7 @@ class speechWrapper(object):
         self.Transcribe()
         word_list = self.results[-1].alternatives[0].words
 
-        script = []
+        self.scripts, self.scores = [], []
         sam = word_list[0].speaker_tag
         tag = sam
         speech = 'Sam:\n'
@@ -189,5 +189,6 @@ class speechWrapper(object):
         speech = '\nSam:\n'
         for word in word_list[stop:]:
             speech += word.word + ' '
-        script.append(speech)
-        return script
+        self.scripts.append(speech)
+        self.scores.append(score)
+        return scripts
